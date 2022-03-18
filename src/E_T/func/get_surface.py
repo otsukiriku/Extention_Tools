@@ -18,7 +18,7 @@ def surface(atoms:mmps.Stream().sdat, coordination_cutoff, _moloption = False)
     coordination_num = np.array(coordination_num)
 
     flag = (coordination_num < coordination_cutoff)
-    atoms.flagconnect = True
+    target.flagconnect = True
     target.trimming_particles(flag, reindex=True)
     
     if _moloption == True:
