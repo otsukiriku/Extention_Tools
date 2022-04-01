@@ -179,3 +179,62 @@ def closeCB_mask_fromPt(atoms:mmps.Stream().sdat, prove_range=60,CB_num=4, Pt_nu
         l_mask = np.append(l_mask, l_mask_idx+1)
     
     return s_mask, l_mask
+
+def Pt_loc_by_pos(Pt:mmps.Stream().sdat, Pt_mask, Pt_num=57, Pt_cluster_pnum=309, Pt_mask_start=7, CB_radius=75):
+    # get center
+    CB_G = rc.r_c()
+    CB_num = len(CB_G)
+
+    Pt_pos=Pt.particles['pos'][Pt.particles['mask']==Pt_mask]
+    Pt_G = [Pt_pos.mean(axis=0)]
+    correct_center_bymask(Pt,[Pt_G], Pt_mask)
+
+    Pt_CB_dis=np.array([get_between_dis(j, CB_G) for j in Pt_G])
+    #arguments of mask of closest CB from Pt
+    sort = np.sort(Pt_CB_dis, axis=1)
+    #print(sort)
+    s_mask=np.empty((0,1), dtype=int)
+    s_dis=np.empty((0,1))
+    l_mask=np.empty((0,1),dtype=int)
+    l_dis=np.empty((0,1))
+    c_dis=np.empty((0,1))
+    for idx, arg in enumerate(sort):
+        #各Ptから最小のCBのmaskを取り出す．
+        #print( np.where(Pt_CB_dis[idx:idx+1][0]==arg[0])[0][0])
+        s_mask_idx = np.where(Pt_CB_dis[idx,:]==arg[0])[0][0]
+        s_dis = np.append(s_dis,Pt_CB_dis[idx,s_mask_idx])
+        s_mask = np.append(s_mask, s_mask_idx)
+        #二番目に距離が短いmaskとかを取り出す．
+        l_mask_idx = np.where(Pt_CB_dis[idx,:]==arg[1])[0][0]
+        l_dis = np.append(l_dis,Pt_CB_dis[idx,l_mask_idx])
+        l_mask = np.append(l_mask, l_mask_idx)
+        #近い二つCBの中心間距離c_dis
+        #Ptの重心から最近接，第二近接CBの中間の座標までの距離を出す
+        CB_between_pos = ( CB_G[s_mask_idx] + CB_G[l_mask_idx] )/2
+        Pt_to_CBbet = CB_between_pos - Pt_G
+        
+    dis = ( CB_G[s_mask,:] - CB_G[l_mask,:])**2
+    c_dis = np.sum(dis,axis = 1)
+    #c_dis = np.append(c_dis, disarr)
+    #print(s_mask)
+    s_dis=np.sqrt(s_dis)
+    l_dis=np.sqrt(l_dis)
+    c_dis=np.sqrt(c_dis)
+
+    #prove radius
+    CB_to_Pt_vec=((Pt_G-CB_G[s_mask,:]))
+    #print(CB_to_Pt_vec)
+    pr = s_dis*c_dis**2/(-l_dis**2+s_dis**2+c_dis**2) - s_dis
+
+    #get prove center(for test)
+    scalor=(s_dis+abs(pr))/s_dis
+    #scalor=np.reshape(scalor, (Pt_num,1))
+    correct = np.sum(s_dis)/len(s_dis)-CB_radius
+    #print(correct)
+    pr = pr + correct
+    pr_pos = CB_G[s_mask,:] + CB_to_Pt_vec*(scalor)
+
+    if pr < 0:
+        pr = 1000
+
+    return pr

@@ -46,3 +46,15 @@ def get_CB_G(atoms:mmps.Stream().sdat, CB_num:int, ):
         CB_g = [CB["pos"][flag].mean(axis=0)]
         CB_G = np.append(CB_G, CB_g, axis=0)
     return CB_G
+
+def correct_center_bymask(atoms : mmps.Stream().sdat, center:np.array, mask):
+    half_cell=np.array(atoms.cell)/2
+    for idx,cent in enumerate(center):
+        flag=atoms.particles['mask']==mask
+        over_flag = (atoms.particles['pos'][flag]-cent) > half_cell
+        under_flag = (atoms.particles['pos'][flag]-cent) < -half_cell
+        atoms.particles['pos'][flag] -= over_flag * atoms.newcell
+        atoms.particles['pos'][flag] += under_flag * atoms.newcell
+        center = g_c.g_c(atoms.particles)
+        return center
+

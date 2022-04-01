@@ -1,8 +1,15 @@
 import numpy as np
 
-def r_c:
-    center=open("./center.txt", mode='r')
+def r_c(filename = None):
+    if filename is None:
+        center=open("./center.txt", mode='r')
+    else:
+        ifn = "./"+filename
+        center=open(file=ifn ,mode='r' )
+
     line = center.readline()
+    CB_mask=[]
+    CB_g = []
     while True:
         line = center.readline().split()
         if not line:
