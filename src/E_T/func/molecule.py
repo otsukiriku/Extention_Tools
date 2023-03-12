@@ -8,8 +8,7 @@ from MolCop.analysis import topology
 def create_molnum(atoms:mmps.Stream().sdat):
     connect_list = atoms.connect_list
     m_list = topology.create_molecule(atoms)
-    
-    if not 'mol' in atoms.particles:
+    if not 'molnum' in atoms.particles:
         atoms.add_particles_property("molnum", _dtype=int, dim=1)
     else:
         pass
@@ -19,4 +18,4 @@ def create_molnum(atoms:mmps.Stream().sdat):
         for ind in l:
             atoms.particles["molnum"][ind]=num_mol
 
-    return atoms
+#    return atom

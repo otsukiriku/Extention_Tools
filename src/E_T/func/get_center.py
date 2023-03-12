@@ -32,18 +32,19 @@ def get_Pt_G(atoms:mmps.Stream().sdat, Pt_num:int, each_cluster_atoms:int):
     Pt_G = np.array(Pt_G)
     return Pt_G 
 
-def get_CB_G(atoms:mmps.Stream().sdat, CB_num:int, ):
+def get_CB_G(atoms:mmps.Stream().sdat, CB_num:int, flag_need_tounwrap=True):
     CB_list = [i for i in range(1,CB_num+1)]
     CB = copy.deepcopy(atoms)
     CB_flag = CB.particles['type']==1
     CB.flagconnect = True
     CB.trimming_particles(CB_flag) 
-    u_p.unwrap_p(CB)
+    if flag_need_tounwrap:
+        u_p.unwrap_p(CB)
     CB_G = np.empty((0,3))
     for mask in CB_list:
         #for wrap particles
-        flag = CB["mask"] == mask
-        CB_g = [CB["pos"][flag].mean(axis=0)]
+        flag = CB.particles["mask"] == mask
+        CB_g = [CB.particles["pos"][flag].mean(axis=0)]
         CB_G = np.append(CB_G, CB_g, axis=0)
     return CB_G
 

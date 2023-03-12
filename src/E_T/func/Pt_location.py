@@ -188,7 +188,8 @@ def Pt_loc_by_pos(Pt:mmps.Stream().sdat, Pt_mask, Pt_num=57, Pt_cluster_pnum=309
     Pt_pos=Pt.particles['pos'][Pt.particles['mask']==Pt_mask]
     Pt_G = [Pt_pos.mean(axis=0)]
     correct_center_bymask(Pt,[Pt_G], Pt_mask)
-
+    Pt_G = [Pt.particles['pos'][Pt.particles['mask']==Pt_mask].mean(axis=0)]
+    #print(Pt_G)
     Pt_CB_dis=np.array([get_between_dis(j, CB_G) for j in Pt_G])
     #arguments of mask of closest CB from Pt
     sort = np.sort(Pt_CB_dis, axis=1)
@@ -235,6 +236,6 @@ def Pt_loc_by_pos(Pt:mmps.Stream().sdat, Pt_mask, Pt_num=57, Pt_cluster_pnum=309
     pr_pos = CB_G[s_mask,:] + CB_to_Pt_vec*(scalor)
 
     if pr < 0:
-        pr = 1000
+        pr = np.array(1000)
 
     return pr
